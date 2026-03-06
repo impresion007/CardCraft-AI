@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CardCraft AI - Tarjetas de Presentacion con IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="header-logo">C</div>
+      <h1>Card<span>Craft</span></h1>
+    </div>
+    <div class="header-actions">
+      <div class="header-badge">
+        <span class="dot"></span>
+        Gemini AI
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="showHistoryModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Historial
+      </button>
+    </div>
+  </header>
+
+  <!-- Steps Navigation -->
+  <nav class="steps-nav">
+    <div class="step-item active" data-step="1" onclick="goToStep(1)">
+      <span class="step-number">1</span>
+      <span>Categoria</span>
+    </div>
+    <div class="step-connector" id="conn-1-2"></div>
+    <div class="step-item" data-step="2" onclick="goToStep(2)">
+      <span class="step-number">2</span>
+      <span>Plantilla</span>
+    </div>
+    <div class="step-connector" id="conn-2-3"></div>
+    <div class="step-item" data-step="3" onclick="goToStep(3)">
+      <span class="step-number">3</span>
+      <span>Datos</span>
+    </div>
+    <div class="step-connector" id="conn-3-4"></div>
+    <div class="step-item" data-step="4" onclick="goToStep(4)">
+      <span class="step-number">4</span>
+      <span>Resultado</span>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Step 1: Category Selection -->
+    <section class="step-section active" id="step-1">
+      <div class="section-header">
+        <div class="step-badge">Paso 1 de 4</div>
+        <h2>Elige tu categoria profesional</h2>
+        <p>Selecciona la profesion o tipo de negocio para encontrar los mejores disenos para tu tarjeta.</p>
+      </div>
+      <div class="category-search">
+        <span class="search-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="categorySearch" placeholder="Buscar entre 280+ categorias..." oninput="filterCategories()">
+      </div>
+      <div class="categories-grid" id="categoriesGrid"></div>
+      <div class="actions-bar">
+        <div></div>
+        <button class="btn btn-primary" id="btnStep1Next" disabled onclick="goToStep(2)">
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 2: Template Selection -->
+    <section class="step-section" id="step-2">
+      <div class="section-header">
+        <div class="step-badge">Paso 2 de 4</div>
+        <h2>Selecciona una plantilla</h2>
+        <p>Elige el diseno base que la IA personalizara con tu informacion.</p>
+      </div>
+      <div class="templates-grid" id="templatesGrid"></div>
+      <div class="actions-bar">
+        <button class="btn btn-secondary" onclick="goToStep(1)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Anterior
+        </button>
+        <button class="btn btn-primary" id="btnStep2Next" disabled onclick="goToStep(3)">
+          Continuar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 3: Data Form -->
+    <section class="step-section" id="step-3">
+      <div class="section-header">
+        <div class="step-badge">Paso 3 de 4</div>
+        <h2>Completa tu informacion</h2>
+        <p>Estos datos apareceran en tu tarjeta de presentacion de 9 x 5 cm.</p>
+      </div>
+      <form id="cardForm" onsubmit="generateCard(event)">
+        <div class="form-layout">
+          <div>
+            <div class="form-card">
+              <div class="form-card-title">Informacion personal</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Nombre completo <span class="required">*</span></label>
+                  <input type="text" id="nombre" required placeholder="Maria Garcia Lopez">
+                </div>
+                <div class="form-group">
+                  <label>Cargo / Titulo <span class="required">*</span></label>
+                  <input type="text" id="cargo" required placeholder="Directora Creativa">
+                </div>
+                <div class="form-group">
+                  <label>Empresa / Negocio</label>
+                  <input type="text" id="empresa" placeholder="Studio Design Co.">
+                </div>
+                <div class="form-group">
+                  <label>Telefono</label>
+                  <input type="tel" id="telefono" placeholder="+52 55 1234 5678">
+                </div>
+                <div class="form-group">
+                  <label>Email <span class="required">*</span></label>
+                  <input type="email" id="email" required placeholder="maria@empresa.com">
+                </div>
+                <div class="form-group">
+                  <label>Sitio Web</label>
+                  <input type="text" id="web" placeholder="www.empresa.com">
+                </div>
+                <div class="form-group full-width">
+                  <label>Direccion</label>
+                  <input type="text" id="direccion" placeholder="Av. Reforma 123, Ciudad de Mexico">
+                </div>
+              </div>
+            </div>
+            <div class="form-card" style="margin-top:1rem;">
+              <div class="form-card-title">Imagenes (opcional)</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Logotipo</label>
+                  <div class="file-upload-area" id="logoUploadArea" onclick="document.getElementById('logoFile').click()">
+                    <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleFilePreview(this, 'logoPreviewContainer')">
+                    <div class="file-upload-placeholder" id="logoPreviewContainer">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      <span>Sube tu logotipo</span>
+                      <span class="file-upload-hint">PNG o SVG transparente recomendado</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Fotografia complementaria</label>
+                  <div class="file-upload-area" id="photoUploadArea" onclick="document.getElementById('photoFile').click()">
+                    <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handleFilePreview(this, 'photoPreviewContainer')">
+                    <div class="file-upload-placeholder" id="photoPreviewContainer">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                      <span>Sube una foto</span>
+                      <span class="file-upload-hint">Foto de perfil, producto, etc.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-card" style="margin-top:1rem;">
+              <div class="form-card-title">Colores personalizados (opcional)</div>
+              <p style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:1rem;">Si no seleccionas colores, se usaran los de la plantilla original.</p>
+              <div class="color-toggle-row">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="useCustomColors" onchange="toggleCustomColors()">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Usar colores personalizados</span>
+              </div>
+              <div class="color-pickers-row" id="colorPickersRow" style="display:none;margin-top:1rem;">
+                <div class="color-picker-card">
+                  <input type="color" id="colorPrimario" value="#1a365d">
+                  <div class="color-picker-info">
+                    <span class="color-picker-label">Color principal</span>
+                    <span class="color-picker-hex" id="colorPrimarioHex">#1a365d</span>
+                  </div>
+                </div>
+                <div class="color-picker-card">
+                  <input type="color" id="colorSecundario" value="#8b5cf6">
+                  <div class="color-picker-info">
+                    <span class="color-picker-label">Color secundario</span>
+                    <span class="color-picker-hex" id="colorSecundarioHex">#8b5cf6</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-sidebar">
+            <div class="form-sidebar-preview">
+              <div class="preview-header">
+                <span>Plantilla seleccionada</span>
+                <button class="btn btn-ghost btn-sm" onclick="goToStep(2)" style="padding:0.25rem 0.5rem;font-size:0.65rem;">Cambiar</button>
+              </div>
+              <div class="preview-frame" id="sidebarPreview">
+                <p style="color:var(--text-tertiary);font-size:0.8rem;">Sin plantilla</p>
+              </div>
+            </div>
+            <div class="form-sidebar-info">
+              <div class="info-row">
+                <span class="info-label">Categoria</span>
+                <span class="info-value" id="infoCategoria">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Tamano</span>
+                <span class="info-value">9 x 5 cm</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Motor IA</span>
+                <span class="info-value">Gemini Banana</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="actions-bar">
+          <button type="button" class="btn btn-secondary" onclick="goToStep(2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Anterior
+          </button>
+          <button type="submit" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Generar con IA
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Step 4: Result & Edit -->
+    <section class="step-section" id="step-4">
+      <div class="section-header">
+        <div class="step-badge">Resultado</div>
+        <h2>Tu tarjeta esta lista</h2>
+        <p>Cada lado se genera por separado para impresion individual.</p>
+      </div>
+      <div class="result-layout">
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <!-- Card Side Tabs + Orientation Toggle -->
+          <div class="card-controls-row">
+            <div class="card-tabs">
+              <button class="card-tab active" id="tabFront" onclick="switchCardTab('front')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Frente
+              </button>
+              <button class="card-tab" id="tabBack" onclick="switchCardTab('back')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Reverso
+              </button>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btnToggleOrientation" onclick="toggleOrientation()" title="Cambiar orientacion">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22h6"/><path d="M12 18h.01"/></svg>
+              <span class="orientation-label">Horizontal</span>
+            </button>
+          </div>
+
+          <!-- Front Card -->
+          <div class="card-preview-container" id="frontPanel">
+            <div class="card-preview-label">
+              <span>Frente - Vista previa</span>
+              <span class="card-dimensions">
+                <span class="dim-badge">9 x 5 cm</span>
+                Individual
+              </span>
+            </div>
+            <div class="card-preview-frame" id="cardPreviewFront">
+              <p class="placeholder-card">
+                <span class="placeholder-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </span>
+                El frente de tu tarjeta aparecera aqui
+              </p>
+            </div>
+            <div class="download-area">
+              <button class="btn btn-primary" onclick="downloadCard('front')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar frente
+              </button>
+              <button class="btn btn-secondary" onclick="goToStep(3)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Editar datos
+              </button>
+            </div>
+          </div>
+
+          <!-- Back Card -->
+          <div class="card-preview-container" id="backPanel" style="display:none;">
+            <div class="card-preview-label">
+              <span>Reverso - Vista previa</span>
+              <span class="card-dimensions">
+                <span class="dim-badge">9 x 5 cm</span>
+                Individual
+              </span>
+            </div>
+            <div class="card-preview-frame" id="cardPreviewBack">
+              <p class="placeholder-card">
+                <span class="placeholder-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </span>
+                Genera el reverso con el boton de abajo
+              </p>
+            </div>
+            <div class="download-area">
+              <button class="btn btn-primary" id="btnGenerateBack" onclick="generateBackSide()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Generar reverso con IA
+              </button>
+              <button class="btn btn-primary" id="btnDownloadBack" onclick="downloadCard('back')" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar reverso
+              </button>
+            </div>
+          </div>
+
+          <!-- Shared buttons -->
+          <div class="download-area" style="margin-top:0.5rem;">
+            <button class="btn btn-secondary" onclick="downloadCard('both')" id="btnDownloadBoth" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar ambas caras
+            </button>
+            <button class="btn btn-secondary" onclick="goToStep(1)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Nueva tarjeta
+            </button>
+          </div>
+        </div>
+        <div class="edit-panel">
+          <div class="edit-section">
+            <div class="edit-section-header">
+              <div class="icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <h3>Editar cara actual con IA</h3>
+            </div>
+            <div class="edit-input-area">
+              <textarea id="editInstructions" placeholder="Describe los cambios que deseas...&#10;Ej: Cambia el fondo a azul oscuro y haz la tipografia mas grande"></textarea>
+              <div class="edit-suggestions">
+                <span class="edit-chip" onclick="setEditText('Cambia el color de fondo a un tono mas oscuro')">Fondo oscuro</span>
+                <span class="edit-chip" onclick="setEditText('Haz la tipografia mas grande y bold')">Texto grande</span>
+                <span class="edit-chip" onclick="setEditText('Agrega un borde dorado elegante')">Borde dorado</span>
+                <span class="edit-chip" onclick="setEditText('Cambia a estilo minimalista')">Minimalista</span>
+                <span class="edit-chip" onclick="setEditText('Agrega iconos para telefono, email y ubicacion')">+ Iconos</span>
+                <span class="edit-chip" onclick="setEditText('Invierte los colores del diseno')">Invertir</span>
+              </div>
+              <button class="btn btn-primary" onclick="editCard()" style="width:100%;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Aplicar cambios
+              </button>
+            </div>
+          </div>
+          <div class="edit-section">
+            <div class="edit-section-header">
+              <div class="icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <h3>Historial de versiones</h3>
+            </div>
+            <div class="history-list" id="historyList">
+              <div class="history-empty">
+                <div class="empty-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                Aun no hay versiones
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-card">
+      <div class="spinner-ring"></div>
+      <div class="loading-text">Generando tu tarjeta con IA...</div>
+      <div class="loading-subtext">Esto puede tomar unos segundos</div>
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- History Modal -->
+  <div class="modal-overlay" id="historyModal" onclick="closeHistoryModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Historial de tarjetas</h2>
+        <button class="btn btn-ghost btn-sm" onclick="closeHistoryModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="fullHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="templateLightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="lightbox-content" id="lightboxContent" onclick="event.stopPropagation()"></div>
+    <div class="lightbox-footer" onclick="event.stopPropagation()">
+      <div class="lightbox-nav">
+        <button onclick="lightboxPrev()" title="Anterior">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <button onclick="lightboxNext()" title="Siguiente">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      <div class="lightbox-title" id="lightboxTitle"></div>
+      <button class="lightbox-select" id="lightboxSelectBtn" onclick="lightboxSelect()">Seleccionar esta plantilla</button>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
