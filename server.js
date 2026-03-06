@@ -52,7 +52,7 @@ app.get('/api/freepik/search', async (req, res) => {
 
   try {
     const searchTerm = encodeURIComponent((query || '') + ' tarjeta presentacion business card');
-    const url = `https://api.freepik.com/v1/resources?locale=es&page=${page}&limit=20&order=relevance&term=${searchTerm}`;
+    const url = `https://api.freepik.com/v1/resources?locale=es&page=${page}&limit=40&order=relevance&term=${searchTerm}`;
     const response = await fetch(url, {
       headers: { 'Accept-Language': 'es', 'x-freepik-api-key': apiKey }
     });

@@ -107,21 +107,62 @@ function selectCategory(cat) {
 }
 
 // ============ Templates ============
-async function loadTemplates(category) {
+let currentTemplatePage = 1;
+let totalTemplatePages = 1;
+let isLoadingMore = false;
+
+async function loadTemplates(category, page = 1, append = false) {
   const grid = document.getElementById('templatesGrid');
-  grid.innerHTML = `
-    <div style="grid-column:1/-1;text-align:center;padding:3rem 0;color:var(--text-tertiary);">
-      <div class="spinner-ring" style="margin:0 auto 1rem;width:32px;height:32px;"></div>
-      <p style="font-size:0.85rem;">Buscando disenos para <strong style="color:var(--text)">${category}</strong>...</p>
-    </div>`;
+
+  if (!append) {
+    currentTemplatePage = 1;
+    state.templates = [];
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:3rem 0;color:var(--text-tertiary);">
+        <div class="spinner-ring" style="margin:0 auto 1rem;width:32px;height:32px;"></div>
+        <p style="font-size:0.85rem;">Buscando disenos para <strong style="color:var(--text)">${category}</strong>...</p>
+      </div>`;
+  }
 
   try {
-    const res = await fetch(`/api/freepik/search?query=${encodeURIComponent(category)}`);
+    const res = await fetch(`/api/freepik/search?query=${encodeURIComponent(category)}&page=${page}`);
     const data = await res.json();
-    renderTemplates(data.data || []);
+    const newTemplates = data.data || [];
+
+    if (append) {
+      state.templates = [...state.templates, ...newTemplates];
+    } else {
+      state.templates = newTemplates;
+    }
+
+    currentTemplatePage = page;
+    totalTemplatePages = data.meta?.pagination?.pages || 1;
+
+    renderTemplates(state.templates);
   } catch (err) {
     console.error(err);
-    grid.innerHTML = '<p style="color:var(--danger);text-align:center;padding:2rem;">Error al cargar disenos</p>';
+    if (!append) {
+      grid.innerHTML = '<p style="color:var(--danger);text-align:center;padding:2rem;">Error al cargar disenos</p>';
+    }
+  }
+}
+
+async function loadMoreTemplates() {
+  if (isLoadingMore || currentTemplatePage >= totalTemplatePages) return;
+  isLoadingMore = true;
+
+  const btn = document.getElementById('btnLoadMore');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner-ring" style="width:18px;height:18px;"></div> Cargando...';
+  }
+
+  await loadTemplates(state.selectedCategory, currentTemplatePage + 1, true);
+
+  isLoadingMore = false;
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg> Cargar mas plantillas`;
   }
 }
 
@@ -130,7 +171,7 @@ function renderTemplates(templates) {
   const checkSVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
   const zoomSVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>`;
 
-  grid.innerHTML = templates.map((t, i) => {
+  const cardsHTML = templates.map((t, i) => {
     const isSelected = state.selectedTemplate && state.selectedTemplate.id === t.id;
     let previewHTML;
 
@@ -166,7 +207,18 @@ function renderTemplates(templates) {
       </div>`;
   }).join('');
 
-  state.templates = templates;
+  // Add "Load more" button if there are more pages
+  const loadMoreHTML = currentTemplatePage < totalTemplatePages
+    ? `<div style="grid-column:1/-1;text-align:center;padding:1.5rem 0;">
+        <button class="btn btn-secondary btn-lg" id="btnLoadMore" onclick="loadMoreTemplates()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+          Cargar mas plantillas
+        </button>
+        <p style="font-size:0.7rem;color:var(--text-tertiary);margin-top:0.5rem;">Pagina ${currentTemplatePage} de ${totalTemplatePages}</p>
+      </div>`
+    : '';
+
+  grid.innerHTML = cardsHTML + loadMoreHTML;
 }
 
 function selectTemplate(index) {
