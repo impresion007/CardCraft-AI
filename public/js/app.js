@@ -136,7 +136,7 @@ async function loadTemplates(category, page = 1, append = false) {
     }
 
     currentTemplatePage = page;
-    totalTemplatePages = data.meta?.pagination?.pages || 1;
+    totalTemplatePages = data.meta?.last_page || data.meta?.pagination?.pages || 1;
 
     renderTemplates(state.templates);
   } catch (err) {
